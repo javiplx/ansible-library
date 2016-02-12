@@ -57,6 +57,7 @@ def read_roles () :
                 print "WARNING: '%s' is not an ansible role" % file_path
                 continue
             _role = yaml.load(tar.extractfile(meta[0]))
+            _role.update( _role.pop('galaxy_info') )
             if not _role.has_key('name') :
                 _role['name'] = os.path.basename(root)
             if not _role.has_key('version') :
@@ -64,6 +65,7 @@ def read_roles () :
             _roles.append( _role )
 
     _id = 1
+    roles = []
     _roles = sorted( _roles , key=operator.itemgetter('name') )
     for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
         _role = { 'id': _id }
@@ -73,6 +75,7 @@ def read_roles () :
           _role['versions'].append( { 'name': r.pop('version') } )
         roles.append( _role )
         _id += 1
+    return roles
 
 
 if __name__ == "__main__":
