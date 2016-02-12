@@ -3,6 +3,7 @@
 import flask
 import tarfile
 import yaml
+import operator, itertools
 import os
 
 me = { "description": "ansible-library REST API",
@@ -55,7 +56,24 @@ def read_roles () :
             if len(meta) != 1:
                 print "WARNING: '%s' is not an ansible role" % file_path
                 continue
-            _roles.append( yaml.load(tar.extractfile(meta[0])) )
+            _role = yaml.load(tar.extractfile(meta[0]))
+            if not _role.has_key('name') :
+                _role['name'] = os.path.basename(root)
+            if not _role.has_key('version') :
+                _role['version'] = file_name.rpartition('.tar')[0]
+            _roles.append( _role )
+
+    _id = 1
+    _roles = sorted( _roles , key=operator.itemgetter('name') )
+    for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
+        _role = { 'id': _id }
+        _role.update( g.next() )
+        _role['versions'] = [ { 'name': _role.pop('version') } ]
+        for r in g :
+          _role['versions'].append( { 'name': r.pop('version') } )
+        roles.append( _role )
+        _id += 1
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3333, debug=True)
