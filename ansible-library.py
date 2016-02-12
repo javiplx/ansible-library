@@ -11,9 +11,6 @@ me = { "description": "ansible-library REST API",
        "available_versions": {"v1": "/api/v1/"}
        }
 
-roles = []
-versions = []
-
 app = flask.Flask('ansible-library')
 
 @app.route("/api/")
@@ -24,6 +21,7 @@ def api():
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
+    roles = filter( lambda d : d['name'] == name , read_roles() )
     resp = { "count": len(roles),
              "cur_page": len(roles),
              "num_pages": len(roles),
@@ -33,8 +31,14 @@ def get_roles():
              }
     return flask.jsonify(resp)
 
-@app.route("/api/v1/roles/<id>/versions/")
+@app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
+    role = filter( lambda d : d['id'] == id , read_roles() )
+    if len(role) == 0 :
+       return "ERROR" , 404
+    versions = role[0]['versions']
+    role_info = { 'url': '', 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
+    map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),
              "num_pages": len(versions),
