@@ -1,35 +1,17 @@
 #!/usr/bin/python
 
 import flask
+import tarfile
+import yaml
+import os
 
 me = { "description": "ansible-library REST API",
        "current_version": "v1",
        "available_versions": {"v1": "/api/v1/"}
        }
 
-roles = [
-          { "id": 1,
-            "username": "Feverup",
-            "name": "augeas",
-            "description": "Partial implementation of augeas commands",
-            "versions": [{"name": "v0.9"}, {"name": "v0.1"}],
-            "dependencies": [],
-            "min_ansible_version": "1.2"
-            }
-          ]
-
-versions = [
-             { "id": 2,
-               "name": "v0.9",
-               "summary_fields": {"role": {"id": 1, "name": "augeas"}},
-               "url": ""
-               },
-             { "id": 3,
-               "name": "v0.1",
-               "summary_fields": {"role": {"id": 2, "name": "augeas"}},
-               "url": ""
-               }
-             ]
+roles = []
+versions = []
 
 app = flask.Flask('ansible-library')
 
@@ -61,6 +43,19 @@ def get_versions(id):
              }
     return flask.jsonify(resp)
 
+
+def read_roles () :
+    _roles = []
+    roles_dir = '/var/lib/galaxy'
+    for root, dirs, files in os.walk(roles_dir) :
+        for file_name in files :
+            file_path = os.path.join(root,file_name)
+            tar = tarfile.open(file_path)
+            meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
+            if len(meta) != 1:
+                print "WARNING: '%s' is not an ansible role" % file_path
+                continue
+            _roles.append( yaml.load(tar.extractfile(meta[0])) )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=3333, debug=True)
