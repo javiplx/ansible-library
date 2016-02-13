@@ -21,7 +21,7 @@ def api():
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d['name'] == name , read_roles() )
+    roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
     resp = { "count": len(roles),
              "cur_page": len(roles),
              "num_pages": len(roles),
@@ -33,7 +33,7 @@ def get_roles():
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d['id'] == id , read_roles() )
+    role = filter( lambda d : d['id'] == id , flask.current_app.roles )
     if len(role) == 0 :
        return "ERROR" , 404
     versions = role[0]['summary_fields']['versions']
@@ -94,5 +94,6 @@ def read_roles () :
 
 
 if __name__ == "__main__":
+    app.roles = read_roles()
     app.run(host="0.0.0.0", port=3333, debug=True)
 
