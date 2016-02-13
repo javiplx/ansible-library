@@ -6,6 +6,8 @@ import yaml
 import operator, itertools
 import os
 
+from ansible.module_utils.urls import open_url
+
 me = { "description": "ansible-library REST API",
        "current_version": "v1",
        "available_versions": {"v1": "/api/v1/"}
@@ -22,6 +24,9 @@ def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
     roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
+    if not roles :
+        galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
+        return open_url(galaxy_url).read()
     resp = { "count": len(roles),
              "cur_page": len(roles),
              "num_pages": len(roles),
@@ -35,7 +40,8 @@ def get_roles():
 def get_versions(id):
     role = filter( lambda d : d['id'] == id , flask.current_app.roles )
     if len(role) == 0 :
-       return "ERROR" , 404
+        galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
+        return open_url(galaxy_url).read()
     versions = role[0]['summary_fields']['versions']
     role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
     map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0]['name'],d['name'])}) , versions )
