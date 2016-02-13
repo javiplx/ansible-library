@@ -52,7 +52,10 @@ def get_versions(id):
 
 @app.route("/<rolename>/<roleversion>.tar.gz")
 def download(rolename, roleversion):
-    return flask.jsonify({'msg':'unimplemented'})
+    roles_dir = '/var/lib/galaxy'
+    srcdir = os.path.join( roles_dir , rolename )
+    return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
+
 
 def read_roles () :
     _roles = []
