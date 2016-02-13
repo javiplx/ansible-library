@@ -36,7 +36,7 @@ def get_versions(id):
     role = filter( lambda d : d['id'] == id , read_roles() )
     if len(role) == 0 :
        return "ERROR" , 404
-    versions = role[0]['versions']
+    versions = role[0]['summary_fields']['versions']
     server_name = "%s://%s" % ( flask.request.scheme , flask.request.headers['Host'] )
     role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
     map( lambda d : d.update({'url': "%s/%s/%s.tar.gz" % (server_name,role[0]['name'],d['name'])}) , versions )
@@ -86,6 +86,9 @@ def read_roles () :
         for r in g :
           _role['versions'].append( { 'name': r.pop('version') } )
         roles.append( _role )
+        _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
+                                    'versions': _role.pop('versions')
+                                    }
         _id += 1
     return roles
 
