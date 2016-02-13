@@ -37,9 +37,8 @@ def get_versions(id):
     if len(role) == 0 :
        return "ERROR" , 404
     versions = role[0]['summary_fields']['versions']
-    server_name = "%s://%s" % ( flask.request.scheme , flask.request.headers['Host'] )
     role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
-    map( lambda d : d.update({'url': "%s/%s/%s.tar.gz" % (server_name,role[0]['name'],d['name'])}) , versions )
+    map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0]['name'],d['name'])}) , versions )
     map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),
