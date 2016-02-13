@@ -26,7 +26,9 @@ def get_roles():
     roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
-        return open_url(galaxy_url).read()
+        response = flask.json.load(open_url(galaxy_url))
+        flask.current_app.roles.extend( response['results'] )
+        return flask.jsonify(response)
     resp = { "count": len(roles),
              "cur_page": len(roles),
              "num_pages": len(roles),
