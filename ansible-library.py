@@ -58,9 +58,9 @@ def get_versions(id):
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()
-    versions = role[0]['summary_fields']['versions']
-    role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
-    map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0]['name'],d['name'])}) , versions )
+    versions = role[0][1]['summary_fields']['versions']
+    role_info = { 'summary_fields': { "role": { "id": role[0][1]['id'] , "name": role[0][1]['name'] } } }
+    map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0][1]['name'],d['name'])}) , versions )
     map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),
