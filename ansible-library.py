@@ -16,6 +16,7 @@ import tarfile
 import yaml
 import operator, itertools
 import os
+import time
 
 from ansible.module_utils.urls import open_url
 
@@ -34,11 +35,13 @@ def api():
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
+    roles = filter( lambda d : d[1]['name'] == name , flask.current_app.roles )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
-        flask.current_app.roles.extend( response['results'] )
+        now = time.time()
+        results = map( lambda x : ( time.time() , x ) , response['results'] )
+        flask.current_app.roles.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
              "cur_page": len(roles),
@@ -51,7 +54,7 @@ def get_roles():
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d['id'] == id , flask.current_app.roles )
+    role = filter( lambda d : d[1]['id'] == id , flask.current_app.roles )
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()
@@ -112,6 +115,6 @@ def read_roles () :
 
 
 if __name__ == "__main__":
-    app.roles = read_roles()
+    app.roles = map( lambda x : ( -1 , x ) , read_roles() )
     app.run(host="0.0.0.0", port=3333, debug=True)
 
