@@ -48,7 +48,7 @@ def get_roles():
              "num_pages": len(roles),
              "next": None,
              "previous": None,
-             "results": roles
+             "results": map( lambda x : x[1] , roles )
              }
     return flask.jsonify(resp)
 
