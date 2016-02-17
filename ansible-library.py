@@ -104,7 +104,7 @@ def read_roles () :
         _role.update( g.next() )
         _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
         for r in g :
-          _role['versions'].append( { 'name': r.pop('version') } )
+          _role['versions'].append( { 'name': str(r.pop('version')) } )
         roles.append( _role )
         _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
                                     'versions': _role.pop('versions')
