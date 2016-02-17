@@ -70,14 +70,12 @@ def get_versions(id):
 
 @app.route("/<rolename>/<roleversion>.tar.gz")
 def download(rolename, roleversion):
-    roles_dir = '/var/lib/galaxy'
-    srcdir = os.path.join( roles_dir , rolename )
+    srcdir = os.path.join( flask.current_app.roles_dir , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
 
-def read_roles () :
+def read_roles ( roles_dir ) :
     _roles = []
-    roles_dir = '/var/lib/galaxy'
     for root, dirs, files in os.walk(roles_dir) :
         for file_name in files :
             file_path = os.path.join(root,file_name)
@@ -112,6 +110,7 @@ def read_roles () :
 
 
 if __name__ == "__main__":
-    app.roles = read_roles()
+    app.roles_dir = '/var/lib/galaxy'
+    app.roles = read_roles( app.roles_dir )
     app.run(host="0.0.0.0", port=3333, debug=True)
 
