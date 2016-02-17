@@ -35,13 +35,13 @@ def api():
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d[1]['name'] == name , flask.current_app.roles )
+    roles = filter( lambda d : d[1]['name'] == name , flask.current_app.roles + flask.current_app.galaxy )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
         now = time.time()
         results = map( lambda x : ( time.time() , x ) , response['results'] )
-        flask.current_app.roles.extend( results )
+        flask.current_app.galaxy.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
              "cur_page": len(roles),
@@ -54,13 +54,15 @@ def get_roles():
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d[1]['id'] == id , flask.current_app.roles )
+    role = filter( lambda d : d[1]['id'] == id , flask.current_app.roles + flask.current_app.galaxy )
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()
     versions = role[0][1]['summary_fields']['versions']
     role_info = { 'summary_fields': { "role": { "id": role[0][1]['id'] , "name": role[0][1]['name'] } } }
-    map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0][1]['name'],d['name'])}) , versions )
+    map( lambda d : d.update({'url': ""}) , versions )
+    if filter( lambda d : d[1]['id'] == id , flask.current_app.roles ) :
+        map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0][1]['name'],d['name'])}) , versions )
     map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),
@@ -73,14 +75,12 @@ def get_versions(id):
 
 @app.route("/<rolename>/<roleversion>.tar.gz")
 def download(rolename, roleversion):
-    roles_dir = '/var/lib/galaxy'
-    srcdir = os.path.join( roles_dir , rolename )
+    srcdir = os.path.join( flask.current_app.roles_dir , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
 
-def read_roles () :
+def read_roles ( roles_dir ) :
     _roles = []
-    roles_dir = '/var/lib/galaxy'
     for root, dirs, files in os.walk(roles_dir) :
         for file_name in files :
             file_path = os.path.join(root,file_name)
@@ -103,9 +103,9 @@ def read_roles () :
     for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
         _role = { 'id': _id }
         _role.update( g.next() )
-        _role['versions'] = [ { 'name': _role.pop('version') } ]
+        _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
         for r in g :
-          _role['versions'].append( { 'name': r.pop('version') } )
+          _role['versions'].append( { 'name': str(r.pop('version')) } )
         roles.append( _role )
         _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
                                     'versions': _role.pop('versions')
@@ -115,6 +115,8 @@ def read_roles () :
 
 
 if __name__ == "__main__":
-    app.roles = map( lambda x : ( -1 , x ) , read_roles() )
+    app.roles_dir = '/var/lib/galaxy'
+    app.roles = map( lambda x : ( -1 , x ) , read_roles( app.roles_dir ) )
+    app.galaxy = []
     app.run(host="0.0.0.0", port=3333, debug=True)
 
