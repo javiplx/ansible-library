@@ -11,10 +11,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See full
 # GPLv2 for more details (http://www.gnu.org/licenses/gpl-2.0.html).
 
+import ansible_library
 import flask
-import tarfile
-import yaml
-import operator, itertools
 import os
 
 from ansible.module_utils.urls import open_url
@@ -24,7 +22,7 @@ me = { "description": "ansible-library REST API",
        "available_versions": {"v1": "/api/v1/"}
        }
 
-app = flask.Flask('ansible-library')
+app = ansible_library.app()
 
 @app.route("/api/")
 def api():
@@ -76,44 +74,6 @@ def download(rolename, roleversion):
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
 
-def read_roles ( roles_dir ) :
-    _roles = []
-    for root, dirs, files in os.walk(roles_dir) :
-        for file_name in files :
-            file_path = os.path.join(root,file_name)
-            tar = tarfile.open(file_path)
-            meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
-            if len(meta) != 1:
-                print "WARNING: '%s' is not an ansible role" % file_path
-                continue
-            _role = yaml.load(tar.extractfile(meta[0]))
-            _role.update( _role.pop('galaxy_info') )
-            if not _role.has_key('name') :
-                _role['name'] = os.path.basename(root)
-            if not _role.has_key('version') :
-                _role['version'] = file_name.rpartition('.tar')[0]
-            _roles.append( _role )
-
-    _id = 1
-    roles = []
-    _roles = sorted( _roles , key=operator.itemgetter('name') )
-    for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
-        _role = { 'id': _id }
-        _role.update( g.next() )
-        _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
-        for r in g :
-          _role['versions'].append( { 'name': str(r.pop('version')) } )
-        roles.append( _role )
-        _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
-                                    'versions': _role.pop('versions')
-                                    }
-        _id += 1
-    return roles
-
-
 if __name__ == "__main__":
-    app.roles_dir = '/var/lib/galaxy'
-    app.roles = read_roles( app.roles_dir )
-    app.galaxy = []
     app.run(host="0.0.0.0", port=3333, debug=True)
 
