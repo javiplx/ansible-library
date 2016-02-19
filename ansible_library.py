@@ -22,6 +22,7 @@ class app ( flask.Flask ) :
         flask.Flask.__init__( self , 'ansible-library' )
         self.roles_dir = '/var/lib/galaxy'
         self.read_roles()
+        self.ttl = 3600
         self.galaxy = []
 
     def read_roles ( self ) :
@@ -51,7 +52,7 @@ class app ( flask.Flask ) :
             _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
             for r in g :
               _role['versions'].append( { 'name': str(r.pop('version')) } )
-            self.roles.append( _role )
+            self.roles.append( ( -1 , _role ) )
             _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
                                         'versions': _role.pop('versions')
                                         }
