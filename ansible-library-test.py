@@ -17,6 +17,7 @@ class ansible_library_test ( unittest.TestCase ) :
         return json.loads(res.data)
 
     def test_api_version ( self ) :
+        '''Verify API version'''
         data = self.get("")
         self.assertEqual( data['current_version'] , 'v1' )
 
@@ -25,12 +26,14 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertEqual( data['current_version'] , galaxy['current_version'] )
 
     def test_local_role ( self ) :
+        '''Get data for local role'''
         data = self.get( "v1/roles/?name=fever" )
         self.assertEqual( data['count'] , 1 )
         result = data['results'][0]
         self.assertEqual( result['name'] , "fever" )
 
     def test_local_versions ( self ) :
+        '''Get versions of local role'''
         data = self.get( "v1/roles/?name=fever" )
         data = self.get( "v1/roles/%s/versions/" % data['results'][0]['id'] )
         self.assertEqual( data['count'] , 2 )
@@ -41,6 +44,7 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertEqual( v11['url'] , "http://localhost/fever/v1.1.tar.gz" )
 
     def test_proxied_role ( self ) :
+        '''Get public galaxy role if not a local one'''
         data = self.get( "v1/roles/?owner__username=Feverup&name=augeas" )
         self.assertEqual( data['count'] , 1 )
         result = data['results'][0]
@@ -53,6 +57,7 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertDictEqual( data['results'][0] , galaxy['results'][0] )
 
     def test_proxied_versions ( self ) :
+        '''Proxying versions from public galaxy'''
         data = self.get( "v1/roles/?owner__username=Feverup&name=augeas" )
         data = self.get( "v1/roles/%s/versions/" % data['results'][0]['id'] )
 
