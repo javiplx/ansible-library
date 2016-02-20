@@ -20,12 +20,17 @@ class library ( flask.Flask ) :
 
     def __init__ ( self ) :
         flask.Flask.__init__( self , 'ansible-library' )
-        self.roles_dir = '/var/lib/galaxy'
-        self.read_roles()
+        self.roles_dir = None
+        self.roles = []
         self.ttl = 3600
         self.galaxy = []
 
-    def read_roles ( self ) :
+    def run ( self , *args, **kwargs ) :
+        if self.roles_dir :
+            self.load_roles()
+        flask.Flask.run( self , *args, **kwargs )
+
+    def load_roles ( self ) :
         _roles = []
         for root, dirs, files in os.walk(self.roles_dir) :
             for file_name in files :
