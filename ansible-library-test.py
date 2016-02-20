@@ -14,14 +14,39 @@
 import ansible_library
 import unittest
 import json
+import os
+import shutil
+import tempfile
+import yaml
+import tarfile
 
 
 class ansible_library_test ( unittest.TestCase ) :
 
+    @classmethod
+    def setUpClass ( cls ) :
+        cls._tempdir = tempfile.mkdtemp()
+        roles = yaml.load( open( 'tests/fixtures/roles.yml' ) )
+        for role in roles :
+            role_name = role.pop('name')
+            if not os.path.exists( "%s/%s" % ( cls._tempdir , role_name ) ) :
+                os.mkdir( "%s/%s" % ( cls._tempdir , role_name ) )
+            file_name = "%s/%s.tar.gz" % ( role_name , role['galaxy_info']['version'] )
+            with open( "%s/meta.yml" % cls._tempdir , 'w' ) as fd :
+                yaml.dump(role, fd, default_flow_style=False)
+            with tarfile.open( "%s/%s" % ( cls._tempdir , file_name ) , mode="w:gz" ) as tar :
+                tar.add( "%s/meta.yml" % cls._tempdir , "%s/meta/main.yml" % role_name )
+        os.unlink("%s/meta.yml" % cls._tempdir)
+
+    @classmethod
+    def tearDownClass ( cls ) :
+        shutil.rmtree( cls._tempdir )
+
     def setUp ( self ) :
-        ansible_library.app.roles_dir = '/var/lib/galaxy'
+        ansible_library.app.roles_dir = self._tempdir
         ansible_library.app.load_roles()
         self.app = ansible_library.app.test_client()
+        self.app.testing = True
 
     def get ( self , url ) :
         res = self.app.get( "/api/%s" % url )
