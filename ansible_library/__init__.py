@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 # Copyright (C) 2016 Javier Palacios
 #
@@ -11,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See full
 # GPLv2 for more details (http://www.gnu.org/licenses/gpl-2.0.html).
 
-import ansible_library
+import ansible_library.application
 import flask
 import os
 import time
@@ -23,7 +22,7 @@ me = { "description": "ansible-library REST API",
        "available_versions": {"v1": "/api/v1/"}
        }
 
-app = ansible_library.app()
+app = ansible_library.application.library()
 
 @app.route("/api/")
 def api():
@@ -85,7 +84,4 @@ def download(rolename, roleversion):
     srcdir = os.path.join( flask.current_app.roles_dir , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3333, debug=True)
 

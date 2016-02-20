@@ -16,7 +16,7 @@ import yaml
 import operator, itertools
 import os
 
-class app ( flask.Flask ) :
+class library ( flask.Flask ) :
 
     def __init__ ( self ) :
         flask.Flask.__init__( self , 'ansible-library' )
