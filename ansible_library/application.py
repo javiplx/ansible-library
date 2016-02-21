@@ -19,9 +19,15 @@ import os
 
 class role ( dict ) :
 
-    def __init__ ( self , id ) :
+    def __init__ ( self , id=None ) :
         dict.__init__( self )
         self['id'] = id
+
+    @classmethod
+    def from_yaml ( cls , meta_stream ) :
+        obj = cls()
+        obj.update( yaml.load( meta_stream ) )
+        return obj
 
 
 class library ( flask.Flask ) :
@@ -48,7 +54,7 @@ class library ( flask.Flask ) :
                 if len(meta) != 1:
                     print "WARNING: '%s' is not an ansible role" % file_path
                     continue
-                _role = yaml.load(tar.extractfile(meta[0]))
+                _role = role.from_yaml(tar.extractfile(meta[0]))
                 _role.update( _role.pop('galaxy_info') )
                 if not _role.has_key('name') :
                     _role['name'] = os.path.basename(root)
