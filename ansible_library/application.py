@@ -19,25 +19,24 @@ import os
 
 class role ( dict ) :
 
-    def __init__ ( self , id=None ) :
+    def __init__ ( self , id ) :
         dict.__init__( self )
-        if id :
-            self['id'] = id
+        self['id'] = id
 
-    @classmethod
-    def from_tar ( cls , dir_name , file_name ) :
-        obj = cls()
+class galaxy_role ( dict ) :
+
+    def __init__ ( self , dir_name , file_name ) :
+        dict.__init__( self )
         tar = tarfile.open( os.path.join( dir_name , file_name ) )
         meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
         if len(meta) != 1:
             print "WARNING: '%s' is not an ansible role" % os.path.join( dir_name , file_name )
-            return obj
+            return
         data = yaml.load( tar.extractfile(meta[0]) )
-        obj.update( data['galaxy_info'] )
-        obj['dependencies'] = data['dependencies']
-        obj.set_name( os.path.basename(dir_name) )
-        obj.set_version( file_name.rpartition('.tar')[0] )
-        return obj
+        self.update( data['galaxy_info'] )
+        self['dependencies'] = data['dependencies']
+        self.set_name( os.path.basename(dir_name) )
+        self.set_version( file_name.rpartition('.tar')[0] )
 
     def set_name ( self , name ) :
         if not self.has_key('name') :
@@ -66,7 +65,7 @@ class library ( flask.Flask ) :
         _roles = []
         for root, dirs, files in os.walk(self.roles_dir) :
             for file_name in files :
-               _roles.append( role.from_tar( root , file_name ) )
+               _roles.append( galaxy_role( root , file_name ) )
 
         _id = 1
         self.roles = []
