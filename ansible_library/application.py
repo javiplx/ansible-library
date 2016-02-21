@@ -25,9 +25,19 @@ class role ( dict ) :
 
     @classmethod
     def from_yaml ( cls , meta_stream ) :
+        data = yaml.load( meta_stream )
         obj = cls()
-        obj.update( yaml.load( meta_stream ) )
+        obj.update( data['galaxy_info'] )
+        obj['dependencies'] = data['dependencies']
         return obj
+
+    def set_name ( self , name ) :
+        if not self.has_key('name') :
+            self['name'] = name
+
+    def set_version ( self , version ) :
+        if not self.has_key('version') :
+            self['version'] = version
 
 
 class library ( flask.Flask ) :
@@ -55,12 +65,9 @@ class library ( flask.Flask ) :
                     print "WARNING: '%s' is not an ansible role" % file_path
                     continue
                 _role = role.from_yaml(tar.extractfile(meta[0]))
-                _role.update( _role.pop('galaxy_info') )
-                if not _role.has_key('name') :
-                    _role['name'] = os.path.basename(root)
-                if not _role.has_key('version') :
-                    _role['version'] = file_name.rpartition('.tar')[0]
-                _roles.append( _role )
+                _role.set_name( os.path.basename(root) )
+                _role.set_version( file_name.rpartition('.tar')[0] )
+               _roles.append( _role )
 
         _id = 1
         self.roles = []
