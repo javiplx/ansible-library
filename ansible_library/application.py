@@ -16,6 +16,14 @@ import yaml
 import operator, itertools
 import os
 
+
+class role ( dict ) :
+
+    def __init__ ( self , id ) :
+        dict.__init__( self )
+        self['id'] = id
+
+
 class library ( flask.Flask ) :
 
     def __init__ ( self ) :
@@ -52,7 +60,7 @@ class library ( flask.Flask ) :
         self.roles = []
         _roles = sorted( _roles , key=operator.itemgetter('name') )
         for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
-            _role = { 'id': _id }
+            _role = role( _id )
             _role.update( g.next() )
             _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
             for r in g :
