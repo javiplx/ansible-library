@@ -1,0 +1,10 @@
+sudo: false
+language: python
+env:
+  - ANSIBLE_VERSION=1.9.4
+  - ANSIBLE_VERSION=2.0
+install:
+  - pip install flask==0.10
+  - pip install ansible==${ANSIBLE_VERSION}
+script:
+  - python -m unittest discover
