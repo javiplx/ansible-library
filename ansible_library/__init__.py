@@ -13,7 +13,6 @@
 import ansible_library.application
 import flask
 import os
-import time
 
 from ansible.module_utils.urls import open_url
 
@@ -30,21 +29,20 @@ def api():
 
 @app.before_request
 def before_request():
-    now = time.time()
-    for role in flask.current_app.galaxy :
-        if now - role.tstamp > app.ttl :
-            flask.current_app.galaxy.remove( role )
+    for role in flask.current_app.roles :
+        if role.expired() :
+            flask.current_app.roles.remove( role )
 
 @app.route("/api/v1/roles/")
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d['name'] == name , flask.current_app.roles + flask.current_app.galaxy )
+    roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
-        results = map( application.proxied_role , response['results'] )
-        flask.current_app.galaxy.extend( results )
+        results = map( lambda x : application.proxied_role(x, app.ttl) , response['results'] )
+        flask.current_app.roles.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
              "cur_page": len(roles),
@@ -57,7 +55,7 @@ def get_roles():
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d['id'] == id , flask.current_app.roles + flask.current_app.galaxy )
+    role = filter( lambda d : d['id'] == id , flask.current_app.roles )
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()

@@ -24,6 +24,9 @@ class role ( dict ) :
         dict.__init__( self )
         self['id'] = id
 
+    def expired ( self ) :
+        False
+
 class galaxy_role ( dict ) :
 
     def __init__ ( self , dir_name , file_name ) :
@@ -50,9 +53,12 @@ class galaxy_role ( dict ) :
 
 class proxied_role ( dict ) :
 
-    def __init__ ( self , galaxy_metadata ) :
-        self.tstamp = time.time()
+    def __init__ ( self , galaxy_metadata , ttl ) :
+        self.expiration = time.time() + ttl
         dict.__init__( self , galaxy_metadata )
+
+    def expired ( self ) :
+        time.time() > self.expiration
 
 
 class library ( flask.Flask ) :
