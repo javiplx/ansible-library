@@ -15,6 +15,7 @@ import tarfile
 import yaml
 import operator, itertools
 import os
+import glob
 
 class library ( flask.Flask ) :
 
@@ -32,21 +33,18 @@ class library ( flask.Flask ) :
 
     def load_roles ( self ) :
         _roles = []
-        for root, dirs, files in os.walk(self.roles_dir) :
-            for file_name in files :
-                file_path = os.path.join(root,file_name)
-                tar = tarfile.open(file_path)
-                meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
-                if len(meta) != 1:
-                    print "WARNING: '%s' is not an ansible role" % file_path
-                    continue
-                _role = yaml.load(tar.extractfile(meta[0]))
-                _role.update( _role.pop('galaxy_info') )
-                if not _role.has_key('name') :
-                    _role['name'] = os.path.basename(root)
-                if not _role.has_key('version') :
-                    _role['version'] = file_name.rpartition('.tar')[0]
-                _roles.append( _role )
+        for file_path in glob.glob( "/var/lib/galaxy/*/*.tar.gz" ) :
+            root , file_name = os.path.split( file_path )
+            tar = tarfile.open(file_path)
+            meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
+            if len(meta) != 1:
+                print "WARNING: '%s' is not an ansible role" % file_path
+                continue
+            _role = yaml.load(tar.extractfile(meta[0]))
+            _role.update( _role.pop('galaxy_info') )
+            _role['name'] = os.path.basename(root)
+            _role['version'] = file_name.rpartition('.tar')[0]
+            _roles.append( _role )
 
         _id = 1
         self.roles = []

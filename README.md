@@ -23,9 +23,6 @@ version are assigned following the github download standards, that is
 
     /var/lib/galaxy/<rolename>/<roleversion>.tar.gz
 
-although it is possible to use `name` or `version` non-standard entries under
-`galaxy_info` for that purpose, to give more flexibility to the storage layout.
-
 ## License
 
 Copyright (C) 2016 Javier Palacios
