@@ -1,0 +1,48 @@
+---
+
+
+- name: djangoserver
+  galaxy_info:
+    version: v1.0
+    description: Setup stack for running a django app
+    company: Fever
+    min_ansible_version: 1.9
+  dependencies:
+    - gitclone
+
+- name: djangoserver
+  galaxy_info:
+    version: v1.1
+    description: Setup stack for running a django app
+    company: Fever
+    min_ansible_version: 1.9
+  dependencies:
+    - gitclone
+
+- name: fever
+  galaxy_info:
+    version: v1.0
+    description: Setup the user to run fever applications
+    company: Fever
+    min_ansible_version: 1.9
+  dependencies: []
+
+- name: fever
+  galaxy_info:
+    version: v1.1
+    description: Setup the user to run fever applications
+    company: Fever
+    author: Javier Palacios
+    license: private
+    min_ansible_version: 1.9
+  dependencies: []
+
+- name: gitclone
+  galaxy_info:
+    version: v1.0
+    description: Pseudo-abstract role to clone a git@github.com:Feverup repository
+    company: Fever
+    min_ansible_version: 1.9
+  dependencies:
+    - fever
+
