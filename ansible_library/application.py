@@ -14,6 +14,7 @@ import flask
 import tarfile
 import yaml
 import operator, itertools
+import time
 import os
 
 
@@ -45,6 +46,13 @@ class galaxy_role ( dict ) :
     def set_version ( self , version ) :
         if not self.has_key('version') :
             self['version'] = version
+
+
+class proxied_role ( dict ) :
+
+    def __init__ ( self , galaxy_metadata ) :
+        self.tstamp = time.time()
+        dict.__init__( self , galaxy_metadata )
 
 
 class library ( flask.Flask ) :

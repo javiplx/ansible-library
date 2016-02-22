@@ -32,8 +32,7 @@ def api():
 def before_request():
     now = time.time()
     for role in flask.current_app.galaxy :
-        print now, role[0] , now - role[0] > app.ttl , role[1]['name']
-        if now - role[0] > app.ttl :
+        if now - role[1].tstamp > app.ttl :
             flask.current_app.galaxy.remove( role )
 
 @app.route("/api/v1/roles/")
@@ -44,7 +43,7 @@ def get_roles():
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
-        results = map( lambda x : ( time.time() , x ) , response['results'] )
+        results = map( lambda x : ( time.time() , application.proxied_role(x) ) , response['results'] )
         flask.current_app.galaxy.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
