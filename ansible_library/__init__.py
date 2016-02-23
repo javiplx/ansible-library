@@ -61,9 +61,7 @@ def get_versions(id):
         return open_url(galaxy_url).read()
     versions = role[0]['summary_fields']['versions']
     role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
-    map( lambda d : d.update({'url': ""}) , versions )
-    if filter( lambda d : d['id'] == id , flask.current_app.roles ) :
-        map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0]['name'],d['name'])}) , versions )
+    map( lambda d : role[0].set_url( flask.request.url_root , d ) , versions )
     map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),

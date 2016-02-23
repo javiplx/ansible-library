@@ -24,6 +24,9 @@ class role ( dict ) :
         dict.__init__( self )
         self['id'] = id
 
+    def set_url ( self , root_url , version ) :
+        version['url'] = "%s%s/%s.tar.gz" % ( root_url , self['name'] , version['name'] )
+
     def expired ( self ) :
         False
 
@@ -56,6 +59,9 @@ class proxied_role ( dict ) :
     def __init__ ( self , galaxy_metadata , ttl ) :
         self.expiration = time.time() + ttl
         dict.__init__( self , galaxy_metadata )
+
+    def set_url ( self , roles_dir , version ) :
+        version['url'] = ""
 
     def expired ( self ) :
         time.time() > self.expiration
