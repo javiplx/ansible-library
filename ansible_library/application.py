@@ -33,7 +33,7 @@ class library ( flask.Flask ) :
 
     def load_roles ( self ) :
         _roles = []
-        for file_path in glob.glob( "/var/lib/galaxy/*/*.tar.gz" ) :
+        for file_path in glob.glob( os.path.join( self.roles_dir , "*/*.tar.gz" ) ) :
             root , file_name = os.path.split( file_path )
             tar = tarfile.open(file_path)
             meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
