@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 # Copyright (C) 2016 Javier Palacios
 #
@@ -104,7 +103,4 @@ class ansible_library_test ( unittest.TestCase ) :
         galaxy = self.app.get( "https://galaxy.ansible.com%s" % galaxy['results'][0]['related']['versions'] )
         galaxy = json.loads(galaxy.data)
         self.assertListEqual( data['results'] , galaxy['results'] )
-
-if __name__ == '__main__':
-    unittest.main()
 

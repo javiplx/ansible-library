@@ -13,7 +13,6 @@
 import ansible_library.application
 import flask
 import os
-import time
 
 from ansible.module_utils.urls import open_url
 
@@ -30,42 +29,39 @@ def api():
 
 @app.before_request
 def before_request():
-    now = time.time()
-    for role in flask.current_app.galaxy :
-        if now - role[0] > app.ttl :
-            flask.current_app.galaxy.remove( role )
+    for role in flask.current_app.roles :
+        if role.expired() :
+            flask.current_app.roles.remove( role )
 
 @app.route("/api/v1/roles/")
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d[1]['name'] == name , flask.current_app.roles + flask.current_app.galaxy )
+    roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
-        results = map( lambda x : ( time.time() , x ) , response['results'] )
-        flask.current_app.galaxy.extend( results )
+        results = map( lambda x : application.proxied_role(x, app.ttl) , response['results'] )
+        flask.current_app.roles.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
              "cur_page": len(roles),
              "num_pages": len(roles),
              "next": None,
              "previous": None,
-             "results": map( lambda x : x[1] , roles )
+             "results": roles
              }
     return flask.jsonify(resp)
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d[1]['id'] == id , flask.current_app.roles + flask.current_app.galaxy )
+    role = filter( lambda d : d['id'] == id , flask.current_app.roles )
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()
-    versions = role[0][1]['summary_fields']['versions']
-    role_info = { 'summary_fields': { "role": { "id": role[0][1]['id'] , "name": role[0][1]['name'] } } }
-    map( lambda d : d.update({'url': ""}) , versions )
-    if filter( lambda d : d[1]['id'] == id , flask.current_app.roles ) :
-        map( lambda d : d.update({'url': "%s%s/%s.tar.gz" % (flask.request.url_root,role[0][1]['name'],d['name'])}) , versions )
+    versions = role[0]['summary_fields']['versions']
+    role_info = { 'summary_fields': { "role": { "id": role[0]['id'] , "name": role[0]['name'] } } }
+    map( lambda d : role[0].set_url( flask.request.url_root , d ) , versions )
     map( lambda d : d.update(role_info) , versions )
     resp = { "count": len(versions),
              "cur_page": len(versions),
