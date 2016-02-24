@@ -21,16 +21,15 @@ class library ( flask.Flask ) :
 
     def __init__ ( self ) :
         flask.Flask.__init__( self , 'ansible-library' )
-        self.roles_dir = None
         self.roles = []
-        self.ttl = 3600
         self.galaxy = []
 
     conffile = "/etc/ansible-library.yml"
-    appconfig = { 'roles_dir':"/var/lib/galaxy",
-                  'host':"0.0.0.0",
-                  'port':3333,
-                  'debug':False
+    appconfig = { 'roles_dir': "/var/lib/galaxy",
+                  'host': "0.0.0.0",
+                  'port': 3333,
+                  'ttl': 3600,
+                  'debug': False
                   }
 
     def run ( self , *args, **kwargs ) :

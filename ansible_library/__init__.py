@@ -32,7 +32,7 @@ def api():
 def before_request():
     now = time.time()
     for role in flask.current_app.galaxy :
-        if now - role[0] > app.ttl :
+        if now - role[0] > flask.current_app.appconfig['ttl'] :
             flask.current_app.galaxy.remove( role )
 
 @app.route("/api/v1/roles/")
