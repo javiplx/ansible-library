@@ -18,29 +18,36 @@ import time
 import os
 
 
-class role ( dict ) :
+class abstract_role ( dict ) :
+
+    def __init__ ( self , content={} ) :
+        dict.__init__( self , content )
+
+    def set_url ( self , roles_dir , version ) :
+        version['url'] = ""
+
+    def expired ( self ) :
+        False
+
+class role ( abstract_role ) :
 
     def __init__ ( self , id ) :
-        dict.__init__( self )
+        abstract_role.__init__( self )
         self['id'] = id
 
     def set_url ( self , root_url , version ) :
         version['url'] = "%s%s/%s.tar.gz" % ( root_url , self['name'] , version['name'] )
 
-    def expired ( self ) :
-        False
-
-class galaxy_role ( dict ) :
+class galaxy_role ( abstract_role ) :
 
     def __init__ ( self , dir_name , file_name ) :
-        dict.__init__( self )
         tar = tarfile.open( os.path.join( dir_name , file_name ) )
         meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
         if len(meta) != 1:
             print "WARNING: '%s' is not an ansible role" % os.path.join( dir_name , file_name )
             return
         data = yaml.load( tar.extractfile(meta[0]) )
-        self.update( data['galaxy_info'] )
+        abstract_role.__init__( self , data['galaxy_info'] )
         self['dependencies'] = data['dependencies']
         self.set_name( os.path.basename(dir_name) )
         self.set_version( file_name.rpartition('.tar')[0] )
@@ -54,14 +61,11 @@ class galaxy_role ( dict ) :
             self['version'] = version
 
 
-class proxied_role ( dict ) :
+class proxied_role ( abstract_role ) :
 
     def __init__ ( self , galaxy_metadata , ttl ) :
         self.expiration = time.time() + ttl
-        dict.__init__( self , galaxy_metadata )
-
-    def set_url ( self , roles_dir , version ) :
-        version['url'] = ""
+        abstract_role.__init__( self , galaxy_metadata )
 
     def expired ( self ) :
         time.time() > self.expiration
