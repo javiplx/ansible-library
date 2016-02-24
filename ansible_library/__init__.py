@@ -78,7 +78,7 @@ def get_versions(id):
 
 @app.route("/<rolename>/<roleversion>.tar.gz")
 def download(rolename, roleversion):
-    srcdir = os.path.join( flask.current_app.roles_dir , rolename )
+    srcdir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
 
