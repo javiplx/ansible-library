@@ -110,3 +110,11 @@ class ansible_library_test ( unittest.TestCase ) :
         data = self.get( "v1/roles/%s/versions/" % data['results'][0]['id'] )
         self.assertEqual( data['results'][0]['url'] , "" )
 
+    def test_version_field_class ( self ) :
+        '''Ensure that versions are returned as strings (regression javiplx/ansible-library#8)'''
+        data = self.get( "v1/roles/?name=djangoserver" )
+        data = self.get( "v1/roles/%s/versions/" % data['results'][0]['id'] )
+        self.assertEqual( data['count'] , 2 )
+        for d in data['results'] :
+            self.assertIsInstance(d['name'], unicode)
+

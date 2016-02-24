@@ -3,7 +3,7 @@
 
 - name: djangoserver
   galaxy_info:
-    version: v1.0
+    version: 1.0
     description: Setup stack for running a django app
     company: Fever
     min_ansible_version: 1.9
@@ -12,7 +12,7 @@
 
 - name: djangoserver
   galaxy_info:
-    version: v1.1
+    version: 1.1
     description: Setup stack for running a django app
     company: Fever
     min_ansible_version: 1.9
