@@ -26,14 +26,26 @@ class library ( flask.Flask ) :
         self.ttl = 3600
         self.galaxy = []
 
+    conffile = "/etc/ansible-library.yml"
+    appconfig = { 'roles_dir':"/var/lib/galaxy",
+                  'host':"0.0.0.0",
+                  'port':3333,
+                  'debug':False
+                  }
+
     def run ( self , *args, **kwargs ) :
-        if self.roles_dir :
-            self.load_roles()
-        flask.Flask.run( self , *args, **kwargs )
+        if os.path.isfile( self.conffile ) :
+            localconf = yaml.load( open( self.conffile ) )
+            self.appconfig.update( localconf )
+        self.load_roles()
+        flask.Flask.run( self , host=self.appconfig['host'],
+                                port=self.appconfig['port'],
+                                debug=self.appconfig['debug']
+                                )
 
     def load_roles ( self ) :
         _roles = []
-        for file_path in glob.glob( os.path.join( self.roles_dir , "*/*.tar.gz" ) ) :
+        for file_path in glob.glob( os.path.join( self.appconfig['roles_dir'] , "*/*.tar.gz" ) ) :
             root , file_name = os.path.split( file_path )
             tar = tarfile.open(file_path)
             meta = filter( lambda s : s.endswith('meta/main.yml') ,tar.getnames())
