@@ -43,7 +43,7 @@ class ansible_library_test ( unittest.TestCase ) :
         shutil.rmtree( cls._tempdir )
 
     def setUp ( self ) :
-        ansible_library.app.roles_dir = self._tempdir
+        ansible_library.app.appconfig['roles_dir'] = self._tempdir
         ansible_library.app.load_roles()
         self.app = ansible_library.app.test_client()
         self.app.testing = True
