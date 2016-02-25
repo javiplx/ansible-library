@@ -79,6 +79,8 @@ class library ( flask.Flask ) :
         if self.logfile :
             logger = logging.getLogger('werkzeug')
             logger.addHandler( logging.FileHandler( self.logfile ) )
+            os.sys.stdout = open(os.devnull, 'w')
+            os.sys.stderr = open(os.devnull, 'w')
         if self.roles_dir :
             self.load_roles()
         flask.Flask.run( self , *args, **kwargs )
