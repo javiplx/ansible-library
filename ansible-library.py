@@ -14,6 +14,7 @@
 import ansible_library
 
 if __name__ == "__main__":
+    ansible_library.app.logfile = None
     ansible_library.app.roles_dir = '/var/lib/galaxy'
     ansible_library.app.run(host="0.0.0.0", port=3333, debug=True)
 

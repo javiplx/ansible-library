@@ -17,6 +17,7 @@ import operator, itertools
 import time
 import os
 import glob
+import logging
 
 
 class abstract_role ( dict ) :
@@ -75,6 +76,9 @@ class library ( flask.Flask ) :
         self.galaxy = []
 
     def run ( self , *args, **kwargs ) :
+        if self.logfile :
+            logger = logging.getLogger('werkzeug')
+            logger.addHandler( logging.FileHandler( self.logfile ) )
         if self.roles_dir :
             self.load_roles()
         flask.Flask.run( self , *args, **kwargs )
