@@ -17,6 +17,7 @@ import operator, itertools
 import time
 import os
 import glob
+import logging
 
 
 class abstract_role ( dict ) :
@@ -86,6 +87,11 @@ class library ( flask.Flask ) :
         if os.path.isfile( self.conffile ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
+        if self.appconfig['logfile'] :
+            logger = logging.getLogger('werkzeug')
+            logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
+            os.sys.stdout = open(os.devnull, 'w')
+            os.sys.stderr = open(os.devnull, 'w')
         if self.appconfig['daemonize'] :
             newpid = os.fork()
             if newpid != 0 :
