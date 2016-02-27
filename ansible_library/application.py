@@ -79,6 +79,8 @@ class library ( flask.Flask ) :
                   'listen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
+                  'daemonize': False,
+                  'piddir': None,
                   'debug': False
                   }
 
@@ -87,6 +89,20 @@ class library ( flask.Flask ) :
             localconf = yaml.load( open( self.conffile ) )
             if localconf :
                 self.appconfig.update( localconf )
+        if self.appconfig['daemonize'] :
+            if not self.appconfig['logfile'] :
+                print "ERROR: daemonization requires a logfile"
+                os.sys.exit(1)
+            newpid = os.fork()
+            if newpid :
+                if self.appconfig['piddir'] :
+                    pidfile = os.path.join( self.appconfig['piddir'] , 'ansible-library.pid' )
+                    with open( pidfile , 'w' ) as fd :
+                        fd.write( "%d\n" % newpid )
+                os.sys.exit()
+            else :
+                os.sys.stdout = open(os.devnull, 'w')
+                os.sys.stderr = open(os.devnull, 'w')
         if self.appconfig['logfile'] :
             logger = logging.getLogger('werkzeug')
             logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
