@@ -85,7 +85,8 @@ class library ( flask.Flask ) :
     def run ( self , *args, **kwargs ) :
         if os.path.isfile( self.conffile ) :
             localconf = yaml.load( open( self.conffile ) )
-            self.appconfig.update( localconf )
+            if localconf :
+                self.appconfig.update( localconf )
         if self.appconfig['logfile'] :
             logger = logging.getLogger('werkzeug')
             logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
