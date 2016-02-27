@@ -74,7 +74,7 @@ class library ( flask.Flask ) :
 
     conffile = "/etc/ansible-library.yml"
     appconfig = { 'roles_dir': "/var/lib/galaxy",
-                  'lisen': "0.0.0.0",
+                  'listen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
                   'debug': False
