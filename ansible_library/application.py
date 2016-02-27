@@ -17,6 +17,7 @@ import operator, itertools
 import time
 import os
 import glob
+import logging
 
 
 class abstract_role ( dict ) :
@@ -74,6 +75,7 @@ class library ( flask.Flask ) :
 
     conffile = "/etc/ansible-library.yml"
     appconfig = { 'roles_dir': "/var/lib/galaxy",
+                  'logfile': None,
                   'listen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
@@ -84,6 +86,11 @@ class library ( flask.Flask ) :
         if os.path.isfile( self.conffile ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
+        if self.appconfig['logfile'] :
+            logger = logging.getLogger('werkzeug')
+            logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
+            os.sys.stdout = open(os.devnull, 'w')
+            os.sys.stderr = open(os.devnull, 'w')
         self.load_roles()
         flask.Flask.run( self , host=self.appconfig['listen'],
                                 port=self.appconfig['port'],
