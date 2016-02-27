@@ -26,7 +26,7 @@ class library ( flask.Flask ) :
 
     conffile = "/etc/ansible-library.yml"
     appconfig = { 'roles_dir': "/var/lib/galaxy",
-                  'host': "0.0.0.0",
+                  'lisen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
                   'debug': False
@@ -37,7 +37,7 @@ class library ( flask.Flask ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
         self.load_roles()
-        flask.Flask.run( self , host=self.appconfig['host'],
+        flask.Flask.run( self , host=self.appconfig['listen'],
                                 port=self.appconfig['port'],
                                 debug=self.appconfig['debug']
                                 )
