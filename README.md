@@ -23,6 +23,9 @@ name and version are assigned following the github download standards, that is
 
     /var/lib/galaxy/<rolename>/<roleversion>.tar.gz
 
+Default behaviour is to run as a foreground process, but it can fork itself and
+run as daemon process.
+
 ### Configuration
 
 Some internal parameters can be override by setting them on a configuration
@@ -33,6 +36,8 @@ parameters and their default values are
     listen: 0.0.0.0
     por': 3333
     ttl: 3600
+    daemonize: False
+    piddir: None
     debug: False
 
 ## License
