@@ -84,6 +84,8 @@ class library ( flask.Flask ) :
         if os.path.isfile( self.conffile ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
+        if os.fork() != 0 :
+            os.sys.exit()
         self.load_roles()
         flask.Flask.run( self , host=self.appconfig['listen'],
                                 port=self.appconfig['port'],
