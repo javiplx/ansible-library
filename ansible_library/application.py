@@ -69,19 +69,30 @@ class library ( flask.Flask ) :
 
     def __init__ ( self ) :
         flask.Flask.__init__( self , 'ansible-library' )
-        self.roles_dir = None
         self.roles = []
-        self.ttl = 3600
         self.galaxy = []
 
+    conffile = "/etc/ansible-library.yml"
+    appconfig = { 'roles_dir': "/var/lib/galaxy",
+                  'lisen': "0.0.0.0",
+                  'port': 3333,
+                  'ttl': 3600,
+                  'debug': False
+                  }
+
     def run ( self , *args, **kwargs ) :
-        if self.roles_dir :
-            self.load_roles()
-        flask.Flask.run( self , *args, **kwargs )
+        if os.path.isfile( self.conffile ) :
+            localconf = yaml.load( open( self.conffile ) )
+            self.appconfig.update( localconf )
+        self.load_roles()
+        flask.Flask.run( self , host=self.appconfig['listen'],
+                                port=self.appconfig['port'],
+                                debug=self.appconfig['debug']
+                                )
 
     def load_roles ( self ) :
         _roles = []
-        for file_path in glob.glob( os.path.join( self.roles_dir , "*/*.tar.gz" ) ) :
+        for file_path in glob.glob( os.path.join( self.appconfig['roles_dir'] , "*/*.tar.gz" ) ) :
             _roles.append( galaxy_role( file_path ) )
 
         _id = 1

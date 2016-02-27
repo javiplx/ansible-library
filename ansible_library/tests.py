@@ -19,6 +19,8 @@ import tempfile
 import yaml
 import tarfile
 
+from ansible.module_utils.urls import open_url
+
 
 class ansible_library_test ( unittest.TestCase ) :
 
@@ -42,7 +44,7 @@ class ansible_library_test ( unittest.TestCase ) :
         shutil.rmtree( cls._tempdir )
 
     def setUp ( self ) :
-        ansible_library.app.roles_dir = self._tempdir
+        ansible_library.app.appconfig['roles_dir'] = self._tempdir
         ansible_library.app.load_roles()
         self.app = ansible_library.app.test_client()
         self.app.testing = True
@@ -79,6 +81,13 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertIn( "v1.1" , versions )
         v11 = filter( lambda v : v['name'] == "v1.1" , data['results'] )[0]
         self.assertEqual( v11['url'] , "http://localhost/fever/v1.1.tar.gz" )
+
+    def test_download_local_role ( self ) :
+        '''Download role tarball'''
+        data = self.get( "v1/roles/1/versions/" )
+        self.assertNotEqual( data['results'][0]['url'] , "" )
+        role_tarball = self.app.get(data['results'][0]['url'])
+        self.assertEqual( role_tarball.status_code , 200 )
 
     def test_proxied_role ( self ) :
         '''Get public galaxy role if not a local one'''

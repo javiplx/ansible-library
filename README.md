@@ -17,11 +17,23 @@ Just download the server in your prefered location and run
 
 which starts the server listening on port 3333.
 
-On startup, it searchs all files under `/var/lib/galaxy`, and uses the presence
-of `meta/main.yml` is used to decide whether it is a role or not. The name and
-version are assigned following the github download standards, that is
+On startup, it searchs all files under a configurable directory, and uses the
+presence of `meta/main.yml` is used to decide whether it is a role or not. The
+name and version are assigned following the github download standards, that is
 
     /var/lib/galaxy/<rolename>/<roleversion>.tar.gz
+
+### Configuration
+
+Some internal parameters can be override by setting them on a configuration
+file, which is a yaml one named `/etc/ansible-library.yml`. The configurable
+parameters and their default values are
+
+    roles_dir: /var/lib/galaxy
+    listen: 0.0.0.0
+    por': 3333
+    ttl: 3600
+    debug: False
 
 ## License
 

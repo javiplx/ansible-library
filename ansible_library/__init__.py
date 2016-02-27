@@ -41,7 +41,7 @@ def get_roles():
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
-        results = map( lambda x : application.proxied_role(x, app.ttl) , response['results'] )
+        results = map( lambda x : application.proxied_role(x, flask.current_app.appconfig['ttl']) , response['results'] )
         flask.current_app.roles.extend( results )
         return flask.jsonify(response)
     resp = { "count": len(roles),
@@ -74,7 +74,7 @@ def get_versions(id):
 
 @app.route("/<rolename>/<roleversion>.tar.gz")
 def download(rolename, roleversion):
-    srcdir = os.path.join( flask.current_app.roles_dir , rolename )
+    srcdir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
 
