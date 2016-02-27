@@ -30,8 +30,9 @@ file, which is a yaml one named `/etc/ansible-library.yml`. The configurable
 parameters and their default values are
 
     roles_dir: /var/lib/galaxy
+    logfile: None
     listen: 0.0.0.0
-    por': 3333
+    port: 3333
     ttl: 3600
     debug: False
 
