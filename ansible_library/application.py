@@ -77,6 +77,7 @@ class library ( flask.Flask ) :
                   'lisen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
+                  'piddir': None,
                   'daemonize': False,
                   'debug': False
                   }
@@ -86,7 +87,12 @@ class library ( flask.Flask ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
         if self.appconfig['daemonize'] :
-            if os.fork() != 0 :
+            newpid = os.fork()
+            if newpid != 0 :
+                if self.appconfig['piddir'] :
+                    pidfile = os.path.join( self.appconfig['piddir'] , 'ansible-library.pid' )
+                    with open( pidfile , 'w' ) as fd :
+                        fd.write( "%d\n" % newpid )
                 os.sys.exit()
         self.load_roles()
         flask.Flask.run( self , host=self.appconfig['listen'],
