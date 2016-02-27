@@ -98,6 +98,9 @@ class library ( flask.Flask ) :
                     with open( pidfile , 'w' ) as fd :
                         fd.write( "%d\n" % newpid )
                 os.sys.exit()
+            else :
+                os.sys.stdout = open(os.devnull, 'w')
+                os.sys.stderr = open(os.devnull, 'w')
         if self.appconfig['logfile'] :
             logger = logging.getLogger('werkzeug')
             logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
