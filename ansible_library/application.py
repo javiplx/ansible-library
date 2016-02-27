@@ -77,6 +77,7 @@ class library ( flask.Flask ) :
                   'lisen': "0.0.0.0",
                   'port': 3333,
                   'ttl': 3600,
+                  'daemonize': False,
                   'debug': False
                   }
 
@@ -84,8 +85,9 @@ class library ( flask.Flask ) :
         if os.path.isfile( self.conffile ) :
             localconf = yaml.load( open( self.conffile ) )
             self.appconfig.update( localconf )
-        if os.fork() != 0 :
-            os.sys.exit()
+        if self.appconfig['daemonize'] :
+            if os.fork() != 0 :
+                os.sys.exit()
         self.load_roles()
         flask.Flask.run( self , host=self.appconfig['listen'],
                                 port=self.appconfig['port'],
