@@ -26,7 +26,7 @@ class abstract_role ( dict ) :
         dict.__init__( self , content )
 
     def set_url ( self , roles_dir , version ) :
-        version['url'] = ""
+        version['download'] = ""
 
     def expired ( self ) :
         False
@@ -38,7 +38,7 @@ class role ( abstract_role ) :
         self['id'] = id
 
     def set_url ( self , root_url , version ) :
-        version['url'] = "%s%s/%s.tar.gz" % ( root_url , self['name'] , version['name'] )
+        version['download'] = "%s%s/%s.tar.gz" % ( root_url , self['name'] , version['name'] )
 
 class galaxy_role ( abstract_role ) :
 
