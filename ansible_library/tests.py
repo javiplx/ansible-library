@@ -43,6 +43,19 @@ class ansible_library_test ( unittest.TestCase ) :
     def tearDownClass ( cls ) :
         shutil.rmtree( cls._tempdir )
 
+    def unpack_roles ( self ) :
+        roles = yaml.load( open( 'tests/fixtures/extraroles.yml' ) )
+        for role in roles :
+            role_name = role.pop('name')
+            if not os.path.exists( "%s/%s" % ( self._tempdir , role_name ) ) :
+                os.mkdir( "%s/%s" % ( self._tempdir , role_name ) )
+            file_name = "%s/%s.tar.gz" % ( role_name , role['galaxy_info']['version'] )
+            with open( "%s/meta.yml" % self._tempdir , 'w' ) as fd :
+                yaml.dump(role, fd, default_flow_style=False)
+            with tarfile.open( "%s/%s" % ( self._tempdir , file_name ) , mode="w:gz" ) as tar :
+                tar.add( "%s/meta.yml" % self._tempdir , "%s/meta/main.yml" % role_name )
+        os.unlink("%s/meta.yml" % self._tempdir)
+
     def setUp ( self ) :
         ansible_library.app.appconfig['roles_dir'] = self._tempdir
         ansible_library.app.load_roles()
@@ -135,6 +148,11 @@ class ansible_library_test ( unittest.TestCase ) :
 
     def test_roles_reload ( self ) :
         '''Reload roles from filesystem'''
+        self.unpack_roles()
+
         data = self.put("reload")
         self.assertEqual( data['msg'] , 'Done' )
+
+        data = self.get( "v1/roles/?name=dnsmasq" )
+        self.assertEqual( data['count'] , 1 )
 
