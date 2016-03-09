@@ -29,7 +29,8 @@ def api():
 
 @app.route('/api/reload', methods=['PUT'])
 def reload():
-    pass
+    flask.current_app.load_roles()
+    return flask.jsonify({'msg': 'Done'})
 
 @app.before_request
 def before_request():
