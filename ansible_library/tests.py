@@ -55,6 +55,12 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertEqual( res.content_type , "application/json" )
         return json.loads(res.data)
 
+    def put ( self , url ) :
+        res = self.app.put( "/api/%s" % url )
+        self.assertEqual( res.status_code , 200 )
+        self.assertEqual( res.content_type , "application/json" )
+        return json.loads(res.data)
+
     def test_api_version ( self ) :
         '''Verify API version'''
         data = self.get("")
@@ -126,4 +132,9 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertEqual( data['count'] , 2 )
         for d in data['results'] :
             self.assertIsInstance(d['name'], unicode)
+
+    def test_roles_reload ( self ) :
+        '''Reload roles from filesystem'''
+        data = self.put("reload")
+        self.assertEqual( data['msg'] , 'Done' )
 
