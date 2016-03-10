@@ -27,6 +27,11 @@ app = ansible_library.application.library()
 def api():
     return flask.jsonify(me)
 
+@app.route('/api/reload', methods=['PUT'])
+def reload():
+    flask.current_app.load_roles()
+    return flask.jsonify({'msg': 'Done'})
+
 @app.before_request
 def before_request():
     for role in flask.current_app.roles :

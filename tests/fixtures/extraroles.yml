@@ -1,0 +1,10 @@
+---
+
+- name: dnsmasq
+  galaxy_info:
+    version: v1.0
+    description: Configure dnsmasq as local dns server
+    company: Fever
+    min_ansible_version: 1.9
+  dependencies: []
+
