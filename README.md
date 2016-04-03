@@ -1,8 +1,8 @@
 
 # Ansible Library
 
-Ansible Library is a minimal galaxy implementation, intended to allow serving
-(private) roles from local storage and behave as proxy towards ansible galaxy.
+Ansible Library is a minimal galaxy implementation, intended to allow serve
+private roles from local storage and behave as proxy towards ansible galaxy.
 
 It is intended to allow role installs with standard tools, although it requires
 a minor patch to ansible-galaxy, that enables
@@ -25,6 +25,14 @@ name and version are assigned following the github download standards, that is
 
 Default behaviour is to run as a foreground process, but it can fork itself and
 run as daemon process.
+
+### Maintenance
+
+Besides the galaxy specific endpoints (`/api/v1/`), there is an additional
+operation for library maintenance. Making a PUT to `/api/reload`, the cache
+will be cleaned and the local roles reloaded from disk. This operation acts
+as a warm restart, and is mainly intended to make visible new role versions
+copied under the local roles directory.
 
 ### Configuration
 
