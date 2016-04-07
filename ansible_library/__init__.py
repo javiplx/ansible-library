@@ -82,4 +82,8 @@ def download(rolename, roleversion):
     srcdir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
+@app.route("/<rolename>/<roleversion>", methods=['PUT'])
+def upload(rolename, roleversion):
+    return flask.jsonify({'msg': 'Done'})
+
 
