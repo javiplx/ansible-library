@@ -84,6 +84,8 @@ def download(rolename, roleversion):
 
 @app.route("/<rolename>/<roleversion>", methods=['PUT'])
 def upload(rolename, roleversion):
+    if flask.request.content_type != 'application/x-www-form-urlencoded' :
+        return flask.jsonify({'msg': "Wrong content type '%s'" % flask.request.content_type.split(';')[0]}) , 405
     return flask.jsonify({'msg': 'Done'})
 
 
