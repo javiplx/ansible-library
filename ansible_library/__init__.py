@@ -86,6 +86,9 @@ def download(rolename, roleversion):
 def upload(rolename, roleversion):
     if flask.request.content_type != 'application/x-www-form-urlencoded' :
         return flask.jsonify({'msg': "Wrong content type '%s'" % flask.request.content_type.split(';')[0]}) , 405
+    destination = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename , "%s.tar.gz" % roleversion )
+    with open( destination , 'w' ) as fd :
+        fd.write( flask.request.data )
     return flask.jsonify({'msg': 'Done'})
 
 
