@@ -87,6 +87,11 @@ def upload(rolename, roleversion):
     if flask.request.content_type != 'application/x-www-form-urlencoded' :
         return flask.jsonify({'msg': "Wrong content type '%s'" % flask.request.content_type.split(';')[0]}) , 405
     roledir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
+    matched_role = filter( lambda d : d['name'] == rolename , flask.current_app.roles )
+    if matched_role :
+        matched_version = filter( lambda d : d['name'] == roleversion , matched_role[0]['summary_fields']['versions'] )
+        if matched_version :
+            return flask.jsonify({'msg': "Role %s with version %s already exists" % ( rolename , roleversion ) }) , 409
     if not os.path.isdir( roledir ) :
         os.mkdir( roledir )
     destination = os.path.join( roledir , "%s.tar.gz" % roleversion )
