@@ -90,6 +90,8 @@ def upload(rolename, roleversion):
     if not os.path.isdir( roledir ) :
         os.mkdir( roledir )
     destination = os.path.join( roledir , "%s.tar.gz" % roleversion )
+    if os.path.isfile( destination ) :
+        return flask.jsonify({'msg': "File for %s %s already exists" % ( rolename , roleversion ) }) , 409
     with open( destination , 'w' ) as fd :
         fd.write( flask.request.data )
     return flask.jsonify({'msg': 'Done'})
