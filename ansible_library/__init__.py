@@ -10,7 +10,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See full
 # GPLv2 for more details (http://www.gnu.org/licenses/gpl-2.0.html).
 
-import ansible_library.application
+import application
 import flask
 import os
 
@@ -21,7 +21,7 @@ me = { "description": "ansible-library REST API",
        "available_versions": {"v1": "/api/v1/"}
        }
 
-app = ansible_library.application.library()
+app = application.library()
 
 @app.route("/api/")
 def api():
