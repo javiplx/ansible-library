@@ -56,6 +56,13 @@ class galaxy_role ( abstract_role ) :
         self['version'] = file_name.rpartition('.tar')[0]
 
 
+class role_list ( list ) :
+
+    def clear ( self ) :
+        while self :
+            self.pop()
+
+
 class proxied_role ( abstract_role ) :
 
     def __init__ ( self , galaxy_metadata , ttl ) :
@@ -70,7 +77,7 @@ class library ( flask.Flask ) :
 
     def __init__ ( self ) :
         flask.Flask.__init__( self , 'ansible-library' )
-        self.roles = []
+        self.roles = role_list()
         self.galaxy = []
 
     conffile = "/etc/ansible-library.yml"
@@ -120,7 +127,7 @@ class library ( flask.Flask ) :
             _roles.append( galaxy_role( file_path ) )
 
         _id = 1
-        self.roles = []
+        self.roles.clear()
         _roles = sorted( _roles , key=operator.itemgetter('name') )
         for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
             _role = role( _id )
