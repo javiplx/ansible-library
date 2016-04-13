@@ -108,6 +108,6 @@ def upload(rolename, roleversion):
                                     'versions': _role.pop('versions')
                                     }
         flask.current_app.roles.append( _role )
-    return flask.jsonify({'msg': 'Done'})
+    return flask.jsonify({'msg': 'Done'}) , 201
 
 
