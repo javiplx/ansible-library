@@ -99,7 +99,9 @@ def upload(rolename, roleversion):
         return flask.jsonify({'msg': "File for %s %s already exists" % ( rolename , roleversion ) }) , 409
     with open( destination , 'w' ) as fd :
         fd.write( flask.request.data )
-    if not matched_role :
+    if matched_role :
+         matched_role[0]['summary_fields']['versions'].append( { 'name':roleversion } )
+    else :
         next_id = 1 + max( map ( lambda x : x['id'] , flask.current_app.roles ) )
         _role = application.role( next_id )
         _role.update( application.galaxy_role( destination ) )
