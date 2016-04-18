@@ -82,4 +82,34 @@ def download(rolename, roleversion):
     srcdir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
     return flask.send_from_directory( srcdir , "%s.tar.gz" % roleversion )
 
+@app.route("/<rolename>/<roleversion>", methods=['PUT'])
+def upload(rolename, roleversion):
+    if flask.request.content_type != 'application/x-www-form-urlencoded' :
+        return flask.jsonify({'msg': "Wrong content type '%s'" % flask.request.content_type.split(';')[0]}) , 405
+    roledir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
+    matched_role = filter( lambda d : d['name'] == rolename , flask.current_app.roles )
+    if matched_role :
+        matched_version = filter( lambda d : d['name'] == roleversion , matched_role[0]['summary_fields']['versions'] )
+        if matched_version :
+            return flask.jsonify({'msg': "Role %s with version %s already exists" % ( rolename , roleversion ) }) , 409
+    if not os.path.isdir( roledir ) :
+        os.mkdir( roledir )
+    destination = os.path.join( roledir , "%s.tar.gz" % roleversion )
+    if os.path.isfile( destination ) :
+        return flask.jsonify({'msg': "File for %s %s already exists" % ( rolename , roleversion ) }) , 409
+    with open( destination , 'w' ) as fd :
+        fd.write( flask.request.data )
+    if matched_role :
+         matched_role[0]['summary_fields']['versions'].append( { 'name':roleversion } )
+    else :
+        next_id = 1 + max( map ( lambda x : x['id'] , flask.current_app.roles ) )
+        _role = application.role( next_id )
+        _role.update( application.galaxy_role( destination ) )
+        _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
+        _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
+                                    'versions': _role.pop('versions')
+                                    }
+        flask.current_app.roles.append( _role )
+    return flask.jsonify({'msg': 'Done'}) , 201
+
 
