@@ -34,6 +34,13 @@ will be cleaned and the local roles reloaded from disk. This operation acts
 as a warm restart, and is mainly intended to make visible new role versions
 copied under the local roles directory.
 
+### Role uploading
+
+Appart from copying roles into the library directory, it is possible to upload
+packed roles just by performing a PUT request with the role file to
+`/<rolename>/<roleversion>`, and the server will copy it to the right place and
+add to its list of available roles.
+
 ### Configuration
 
 Some internal parameters can be override by setting them on a configuration
