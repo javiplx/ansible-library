@@ -42,7 +42,7 @@ def before_request():
 def get_roles():
     user = flask.request.args.get('owner__username')
     name = flask.request.args.get('name')
-    roles = filter( lambda d : d['name'] == name , flask.current_app.roles )
+    roles = flask.current_app.roles.by_name( name )
     if not roles :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         response = flask.json.load(open_url(galaxy_url))
@@ -60,7 +60,7 @@ def get_roles():
 
 @app.route("/api/v1/roles/<int:id>/versions/")
 def get_versions(id):
-    role = filter( lambda d : d['id'] == id , flask.current_app.roles )
+    role = flask.current_app.roles.by_id( id )
     if len(role) == 0 :
         galaxy_url = "https://galaxy.ansible.com%s" % flask.request.full_path
         return open_url(galaxy_url).read()
@@ -87,7 +87,7 @@ def upload(rolename, roleversion):
     if flask.request.content_type != 'application/x-www-form-urlencoded' :
         return flask.jsonify({'msg': "Wrong content type '%s'" % flask.request.content_type.split(';')[0]}) , 405
     roledir = os.path.join( flask.current_app.appconfig['roles_dir'] , rolename )
-    matched_role = filter( lambda d : d['name'] == rolename , flask.current_app.roles )
+    matched_role = flask.current_app.roles.by_name( rolename )
     if matched_role :
         matched_version = filter( lambda d : d['name'] == roleversion , matched_role[0]['summary_fields']['versions'] )
         if matched_version :
@@ -102,7 +102,7 @@ def upload(rolename, roleversion):
     if matched_role :
          matched_role[0]['summary_fields']['versions'].append( { 'name':roleversion } )
     else :
-        next_id = 1 + max( map ( lambda x : x['id'] , flask.current_app.roles ) )
+        next_id = flask.current_app.roles.next_id()
         _role = application.role( next_id )
         _role.update( application.galaxy_role( destination ) )
         _role['versions'] = [ { 'name': str(_role.pop('version')) } ]

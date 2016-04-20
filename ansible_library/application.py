@@ -62,6 +62,15 @@ class role_list ( list ) :
         while self :
             self.pop()
 
+    def by_name ( self , name ) :
+        return filter( lambda d : d['name'] == name , self )
+
+    def by_id ( self , id ) :
+        return filter( lambda d : d['id'] == id , self )
+
+    def next_id ( self ) :
+        ids = map( lambda x : x['id'] , self )
+        return 1 + max(ids)
 
 class proxied_role ( abstract_role ) :
 
