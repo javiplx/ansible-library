@@ -102,14 +102,8 @@ def upload(rolename, roleversion):
     if matched_role :
          matched_role[0]['summary_fields']['versions'].append( { 'name':roleversion } )
     else :
-        next_id = flask.current_app.roles.next_id()
-        _role = application.role( next_id )
-        _role.update( application.galaxy_role( destination ) )
-        _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
-        _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
-                                    'versions': _role.pop('versions')
-                                    }
-        flask.current_app.roles.append( _role )
+        _roles = iter([ application.galaxy_role( destination ) ])
+        flask.current_app.roles.add_roles( _roles )
     return flask.jsonify({'msg': 'Done'}) , 201
 
 

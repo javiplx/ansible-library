@@ -62,6 +62,19 @@ class role_list ( list ) :
         while self :
             self.pop()
 
+    def add_roles ( self , role_list , next_id=None ) :
+        if not next_id :
+            next_id = self.next_id()
+        _role = role( next_id )
+        _role.update( role_list.next() )
+        _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
+        for r in role_list :
+            _role['versions'].append( { 'name': str(r.pop('version')) } )
+        _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
+                                    'versions': _role.pop('versions')
+                                    }
+        self.append( _role )
+
     def by_name ( self , name ) :
         return filter( lambda d : d['name'] == name , self )
 
@@ -139,15 +152,7 @@ class library ( flask.Flask ) :
         self.roles.clear()
         _roles = sorted( _roles , key=operator.itemgetter('name') )
         for k, g in itertools.groupby(_roles, operator.itemgetter('name')):
-            _role = role( _id )
-            _role.update( g.next() )
-            _role['versions'] = [ { 'name': str(_role.pop('version')) } ]
-            for r in g :
-              _role['versions'].append( { 'name': str(r.pop('version')) } )
-            self.roles.append( _role )
-            _role['summary_fields'] = { 'dependencies': _role.pop('dependencies'),
-                                        'versions': _role.pop('versions')
-                                        }
+            self.roles.add_roles( g , _id )
             _id += 1
 
 
