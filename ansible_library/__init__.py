@@ -23,6 +23,10 @@ me = { "description": "ansible-library REST API",
 
 app = application.library()
 
+@app.route("/monitor/")
+def monitor():
+    return flask.jsonify({'msg': 'Running'}) , 200
+
 @app.route("/api/")
 def api():
     return flask.jsonify(me)
