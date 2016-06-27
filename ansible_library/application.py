@@ -50,7 +50,7 @@ class galaxy_role ( abstract_role ) :
             return
         data = yaml.load( tar.extractfile(meta[0]) )
         abstract_role.__init__( self , data['galaxy_info'] )
-        self['dependencies'] = data['dependencies']
+        self['dependencies'] = data.get('dependencies', [])
         dir_name , file_name = os.path.split( file_path )
         self['name'] = os.path.basename( dir_name )
         self['version'] = file_name.rpartition('.tar')[0]
