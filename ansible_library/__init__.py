@@ -102,7 +102,7 @@ def upload(rolename, roleversion):
     if os.path.isfile( destination ) :
         return flask.jsonify({'msg': "File for %s %s already exists" % ( rolename , roleversion ) }) , 409
     with open( destination , 'w' ) as fd :
-        fd.write( flask.request.data )
+        fd.write( flask.request.stream.read(flask.request.content_length) )
     if matched_role :
          matched_role[0]['summary_fields']['versions'].append( { 'name':roleversion } )
     else :
