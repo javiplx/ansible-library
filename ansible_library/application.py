@@ -135,8 +135,9 @@ class library ( flask.Flask ) :
         if self.appconfig['logfile'] :
             logger = logging.getLogger('werkzeug')
             logger.addHandler( logging.FileHandler( self.appconfig['logfile'] ) )
-            os.sys.stdout = open(os.devnull, 'w')
-            os.sys.stderr = open(os.devnull, 'w')
+            if self.appconfig['daemonize'] :
+                os.sys.stdout = open(os.devnull, 'w')
+                os.sys.stderr = open(os.devnull, 'w')
         self.load_roles()
         flask.Flask.run( self , host=self.appconfig['listen'],
                                 port=self.appconfig['port'],

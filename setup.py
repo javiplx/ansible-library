@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name = 'ansible-library',
-    version = '1.2.2',
+    version = '1.2.3',
     description = 'Minimal galaxy server to host private roles',
     author = 'Javier Palacios',
     author_email = 'javiplx@gmail.com',
