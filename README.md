@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.org/javiplx/ansible-library.svg?branch=master)](https://travis-ci.org/javiplx/ansible-library)
+
 # Ansible Library
 
 Ansible Library is a minimal galaxy implementation, intended to allow serve
