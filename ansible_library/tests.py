@@ -99,13 +99,13 @@ class ansible_library_test ( unittest.TestCase ) :
         self.assertIn( "v1.0" , versions )
         self.assertIn( "v1.1" , versions )
         v11 = filter( lambda v : v['name'] == "v1.1" , data['results'] )[0]
-        self.assertEqual( v11['download'] , "http://localhost/fever/v1.1.tar.gz" )
+        self.assertEqual( v11['source'] , "http://localhost/fever/v1.1.tar.gz" )
 
     def test_download_local_role ( self ) :
         '''Download role tarball'''
         data = self.get( "v1/roles/1/versions/" )
-        self.assertNotEqual( data['results'][0]['download'] , "" )
-        role_tarball = self.app.get(data['results'][0]['download'])
+        self.assertNotEqual( data['results'][0]['source'] , "" )
+        role_tarball = self.app.get(data['results'][0]['source'])
         self.assertEqual( role_tarball.status_code , 200 )
 
     def test_proxied_role ( self ) :
@@ -136,7 +136,7 @@ class ansible_library_test ( unittest.TestCase ) :
         '''Check url returned for proxied roles (regression javiplx/ansible-library#1)'''
         data = self.get( "v1/roles/?owner__username=Feverup&name=augeas" )
         data = self.get( "v1/roles/%s/versions/" % data['results'][0]['id'] )
-        self.assertEqual( data['results'][0]['download'] , "" )
+        self.assertEqual( data['results'][0]['source'] , "" )
 
     def test_version_field_class ( self ) :
         '''Ensure that versions are returned as strings (regression javiplx/ansible-library#8)'''
