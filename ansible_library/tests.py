@@ -113,7 +113,7 @@ class ansible_library_test ( unittest.TestCase ) :
         data = self.get( "v1/roles/?owner__username=Feverup&name=augeas" )
         self.assertEqual( data['count'] , 1 )
         result = data['results'][0]
-        self.assertEqual( result['namespace'] , "Feverup" )
+        self.assertEqual( result['summary_fields']['namespace']['name'] , "Feverup" )
         self.assertEqual( result['name'] , "augeas" )
 
         galaxy = self.app.get( "https://galaxy.ansible.com/api/v1/roles/" , query_string="?owner__username=Feverup&name=augeas" )
@@ -128,9 +128,7 @@ class ansible_library_test ( unittest.TestCase ) :
 
         galaxy = self.app.get( "https://galaxy.ansible.com/api/v1/roles/" , query_string="?owner__username=Feverup&name=augeas" )
         galaxy = json.loads(galaxy.data)
-        galaxy = self.app.get( "https://galaxy.ansible.com%s" % galaxy['results'][0]['related']['versions'] )
-        galaxy = json.loads(galaxy.data)
-        self.assertListEqual( data['results'] , galaxy['results'] )
+        self.assertListEqual( data['results'] , galaxy['results'][0]['summary_fields']['versions'] )
 
     def test_url_for_proxied_role ( self ) :
         '''Check url returned for proxied roles (regression javiplx/ansible-library#1)'''
